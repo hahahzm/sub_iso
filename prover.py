@@ -15,26 +15,29 @@ def threadServer(socket):
 			data=socket.recv(SIZE)
 		else:
 			data=socket.recv(xlarge)
+			default=True
 
 		if not data:
 			break
 
 		if firstTime and not(str(data) == passphase):
-			print data + 'is Invalid Request'
-			for c in data:
-				print ord(c)
-			print '******************'
-			for c in passphase:
-				print ord(c)
+			print 'Invalid Request'
 			break
-
-
-
-
-		reply='Oh s..' + data
-		socket.sendall(reply)
-		print data,
-		firstTime=False
+			
+		if firstTime:
+			socket.sendall('Chanllenge me\n')
+			print 'Bingo'
+		else:
+			if str(data) == 'pi\n':
+				socket.sendall('Providing pi and portion of the adj matrix of Q\'\n')
+			elif str(data) == 'alpha\n':
+				socket.sendall('Providing alpha and the adj matrix Q\n')
+			else:
+				socket.sendall('You know you should have trusted in me\n')
+				print 'Now he is convinced\n'
+				break
+			firstTime=False
+			
 	socket.close()
 
 
