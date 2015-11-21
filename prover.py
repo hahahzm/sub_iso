@@ -5,15 +5,37 @@ from thread import *
 
 def threadServer(socket):
 	SIZE=1024
-	conn.send('O ha yo u ~\n')
+	socket.send('This is Peggy the honest\n')
+	default=True
+	xlarge=0
+	firstTime=True
+	passphase='This is Victor'+chr(13)+chr(10)
 	while True:
-		data=conn.recv(SIZE)
-		reply='WTF...' + data
+		if default:
+			data=socket.recv(SIZE)
+		else:
+			data=socket.recv(xlarge)
+
 		if not data:
 			break
-		conn.sendall(reply)
-		print data
-	conn.close()
+
+		if firstTime and not(str(data) == passphase):
+			print data + 'is Invalid Request'
+			for c in data:
+				print ord(c)
+			print '******************'
+			for c in passphase:
+				print ord(c)
+			break
+
+
+
+
+		reply='Oh s..' + data
+		socket.sendall(reply)
+		print data,
+		firstTime=False
+	socket.close()
 
 
 HOST = ''
@@ -21,6 +43,7 @@ PORT = int(sys.argv[1])
 
 # create socket
 s = socket.socket(
+
 	socket.AF_INET, socket.SOCK_STREAM)
 
 print s
