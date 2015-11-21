@@ -2,14 +2,17 @@ import socket
 import sys
 from thread import *
 
+
 def threadServer(socket):
+	SIZE=1024
 	conn.send('O ha yo u ~\n')
 	while True:
-		data=conn.recv(1024)
+		data=conn.recv(SIZE)
 		reply='WTF...' + data
 		if not data:
 			break
 		conn.sendall(reply)
+		print data
 	conn.close()
 
 
