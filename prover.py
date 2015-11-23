@@ -4,6 +4,8 @@ import random
 import hashlib
 from thread import *
 
+path="graphs/"
+
 def openMatrix(file):
 	with open(file,"r") as mat:
 		data=mat.read()
@@ -30,13 +32,26 @@ def commitMatrix(m):
 			n[i][j]=hashlib.sha224(hashphase+str(i)+str(j)+str(m[i][j])).hexdigest()[0]
 	return n
 
-def permutationArray(size):
+def generateAlpha(size):
 	result = []
 	for x in range(0,size):
 		result.append(x)
 	random.shuffle(result)
 	return result
 
+def generatePi(alpha):
+	m=[]
+	global path
+	secret=path+"/G2-G'"
+	with open(secret,"r") as order:
+		
+		for data in order:
+			n=[0 for x in range(2)]
+			for col,val in enumerate(data.split(' ')):
+				n[col]=int(val)
+			m.append(n)
+	return m
+		
 
 def permute(m, order):
 	dimension=len(m)
@@ -82,11 +97,20 @@ def threadServer(socket):
 			socket.sendall('Chanllenge me\n')
 			print 'Bingo'
 		else:
-			if str(data) == 'pi\n':
+			g1=openMatrix("G1")
+			g2=openMatrix("G2")
+			order=permutation(len(g2))
+			q=permute(g2, order)
+
+
+
+
+			if str(data) == 'alpha\n':
+				socket.sendall('Providing alpha and the adj matrix Q\n')
+				socket.sendall(order)
+			elif str(data) == 'pi\n':
 				print 'Providing pi and portion of the adj matrix of Q'
 				socket.sendall(str(permutation(10)))
-			elif str(data) == 'alpha\n':
-				socket.sendall('Providing alpha and the adj matrix Q\n')
 			else:
 				socket.sendall('You know you should have trusted in me\n')
 				print 'Now he is convinced\n'
