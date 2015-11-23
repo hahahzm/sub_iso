@@ -1,6 +1,53 @@
 import socket
 import sys
+import random
 from thread import *
+
+def openMatrix(file):
+	with open(file,"r") as mat:
+		data=mat.read()
+		dimension=1
+		for c in data:
+			if c=='\n':
+				break
+			dimension=dimension+1
+		dimension=dimension/2
+		m=[[0 for x in range(dimension)] for x in range(dimension)]
+
+		for row,line in enumerate(data.split('\n')):
+			for col,val in enumerate(line.split(' ')):
+				m[row][col]=int(val)
+
+		return m
+
+def permutationArray(size):
+	result = []
+	for x in range(0,size):
+		result.append(x)
+	random.shuffle(result)
+	return result
+
+
+def permute(m, order):
+	dimension=len(m)
+	n1=[[0 for x in range(dimension)] for x in range(dimension)]
+	n2=[[0 for x in range(dimension)] for x in range(dimension)]
+	
+	i=0
+	for j in order:
+		for k in range(dimension):
+			n1[j][k]=m[i][k]
+		i=i+1
+
+	i=0
+	for j in order:
+		for k in range(dimension):
+			n2[k][j]=n1[k][i]
+		i=i+1
+		
+	return n2
+
+
 
 
 def threadServer(socket):
@@ -29,15 +76,16 @@ def threadServer(socket):
 			print 'Bingo'
 		else:
 			if str(data) == 'pi\n':
-				socket.sendall('Providing pi and portion of the adj matrix of Q\'\n')
+				print 'Providing pi and portion of the adj matrix of Q'
+				socket.sendall(str(permutation(10)))
 			elif str(data) == 'alpha\n':
 				socket.sendall('Providing alpha and the adj matrix Q\n')
 			else:
 				socket.sendall('You know you should have trusted in me\n')
 				print 'Now he is convinced\n'
 				break
-			firstTime=False
-			
+		firstTime=False
+
 	socket.close()
 
 
