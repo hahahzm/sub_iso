@@ -1,6 +1,7 @@
 import socket
 import sys
 import random
+import hashlib
 from thread import *
 
 def openMatrix(file):
@@ -19,6 +20,15 @@ def openMatrix(file):
 				m[row][col]=int(val)
 
 		return m
+
+def commitMatrix(m):
+	hashphase='Matrix commitment'
+	dimension=len(m)
+	n=[[0 for x in range(dimension)] for x in range(dimension)]
+	for i in range(dimension):
+		for j in range(dimension):
+			n[i][j]=hashlib.sha224(hashphase+str(i)+str(j)+str(m[i][j])).hexdigest()[0]
+	return n
 
 def permutationArray(size):
 	result = []
@@ -46,9 +56,6 @@ def permute(m, order):
 		i=i+1
 		
 	return n2
-
-
-
 
 def threadServer(socket):
 	SIZE=1024
