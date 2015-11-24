@@ -7,7 +7,8 @@ from thread import *
 path="graphs/"
 
 def openMatrix(file):
-	with open(file,"r") as mat:
+	global path
+	with open(path + file,"r") as mat:
 		data=mat.read()
 		dimension=1
 		for c in data:
@@ -23,13 +24,35 @@ def openMatrix(file):
 
 		return m
 
+def matToStr(m):
+	dimension=len(m)
+	result=''
+	for i in range(dimension):
+		for j in range(dimension):
+			result=result+str(m[i][j])
+			if j != dimension-1:	
+				result=result+' '
+		if i != dimension-1:
+			result=result+'\n'
+	return result
+
+def listToStr(l):
+	dimension=len(l)
+	result=''
+	for i in range(dimension):
+		result=result+str(l[i])
+		if i != dimension-1:	
+			result=result+' '
+
+	return result
+
 def commitMatrix(m):
 	hashphase='Matrix commitment'
 	dimension=len(m)
 	n=[[0 for x in range(dimension)] for x in range(dimension)]
 	for i in range(dimension):
 		for j in range(dimension):
-			n[i][j]=hashlib.sha224(hashphase+str(i)+str(j)+str(m[i][j])).hexdigest()[0]
+			n[i][j]=str(int(hashlib.sha224(hashphase+str(i)+str(j)+str(m[i][j])).hexdigest(),16))[0]
 	return n
 
 def generateAlpha(size):
@@ -41,8 +64,9 @@ def generateAlpha(size):
 
 def generatePi(alpha):
 	m=[]
+	ct=0
 	global path
-	secret=path+"/G2-G'"
+	secret=path+"G1-G'"
 	with open(secret,"r") as order:
 		
 		for data in order:
@@ -50,27 +74,55 @@ def generatePi(alpha):
 			for col,val in enumerate(data.split(' ')):
 				n[col]=int(val)
 			m.append(n)
-	return m
-		
+			ct=ct+1
 
-def permute(m, order):
-	dimension=len(m)
-	n1=[[0 for x in range(dimension)] for x in range(dimension)]
-	n2=[[0 for x in range(dimension)] for x in range(dimension)]
+	n=[0 for x in range(ct)]
+
+	for line in m:
+		n[line[0]]=alpha[line[1]]
+
+	return n
+		
+def permutation(size):
+	result=[]
+	for x in range(size):
+		result.append(x)
+	random.seed()
+	random.shuffle(result)
+	return result
+
+#def permute(m, order, size):
+#	dimension=size
+#	n1=[[2 for x in range(dimension)] for x in range(dimension)]
+#	n2=[[2 for x in range(dimension)] for x in range(dimension)]
+#	
+#	i=0
+#	for j in order:
+#		for k in range(dimension):
+#			n1[j][k]=m[i][k]
+#		i=i+1
+#
+#	i=0
+#	for j in order:
+#		for k in range(dimension):
+#			n2[k][j]=n1[k][i]
+#		i=i+1
+
+#	return n2
+
+def permute(m, order, size):
+	dimension=size
+	n=[[2 for x in range(dimension)] for x in range(dimension)]
 	
 	i=0
 	for j in order:
-		for k in range(dimension):
-			n1[j][k]=m[i][k]
+		t=0
+		for k in order:
+			n[j][k]=m[i][t]
+			t=t+1
 		i=i+1
 
-	i=0
-	for j in order:
-		for k in range(dimension):
-			n2[k][j]=n1[k][i]
-		i=i+1
-		
-	return n2
+	return n
 
 def threadServer(socket):
 	SIZE=1024
@@ -79,6 +131,9 @@ def threadServer(socket):
 	xlarge=0
 	firstTime=True
 	passphase='This is Victor'+chr(13)+chr(10)
+	global g1
+	global g2
+	
 	while True:
 		if default:
 			data=socket.recv(SIZE)
@@ -97,22 +152,26 @@ def threadServer(socket):
 			socket.sendall('Chanllenge me\n')
 			print 'Bingo'
 		else:
-			g1=openMatrix("G1")
-			g2=openMatrix("G2")
 			order=permutation(len(g2))
-			q=permute(g2, order)
+			q=permute(g2, order, len(g2))
 			orderPi=generatePi(order)
-			q_prime=
+			q_prime=permute(g1, orderPi, len(g2))
 
 
-			if str(data) == 'alpha\n':
-				socket.sendall('Providing alpha and the adj matrix Q\n')
-				socket.sendall(str(order))
-				socket.sendall(str(q))
-			elif str(data) == 'pi\n':
+			if str(data) == 'commitment'+chr(13)+chr(10):
+				socket.sendall(matToStr(commitMatrix(q)))
+				data=socket.recv(SIZE)
+
+			if str(data) == 'alpha'+chr(13)+chr(10):
+				print('Providing alpha and the adj matrix Q\n')
+				socket.sendall(listToStr(order))
+				data=socket.recv(SIZE)
+				socket.sendall(matToStr(q))
+			elif str(data) == 'pi'+chr(13)+chr(10):
 				print 'Providing pi and portion of the adj matrix of Q'
-				socket.sendall(str(orderPi))
-				socket.sendall(str(q_prime))
+				socket.sendall(listToStr(orderPi))
+				data=socket.recv(SIZE)
+				socket.sendall(matToStr(q_prime))
 
 			else:
 				socket.sendall('You know you should have trusted in me\n')
@@ -125,6 +184,12 @@ def threadServer(socket):
 
 HOST = ''
 PORT = int(sys.argv[1])
+
+path = sys.argv[2]
+g1=openMatrix("G1")
+g2=openMatrix("G2")
+
+
 
 # create socket
 s = socket.socket(

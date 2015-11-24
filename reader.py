@@ -21,21 +21,30 @@ def openMatrix(file):
 
 		return m
 
-def permute(m, order):
-	dimension=len(m)
-	n1=[[0 for x in range(dimension)] for x in range(dimension)]
-	n2=[[0 for x in range(dimension)] for x in range(dimension)]
+def permute(m, order, size):
+	dimension=size
+	n1=[[2 for x in range(dimension)] for x in range(dimension)]
+	n2=[[2 for x in range(dimension)] for x in range(dimension)]
 	
 	i=0
 	for j in order:
-		for k in range(dimension):
-			n1[j][k]=m[i][k]
+		t=0
+		for k in order:
+			n1[j][k]=m[i][t]
+			t=t+1
 		i=i+1
+
+	print 'Half Permuted matrix:'
+	for a in n1:
+		print a
+
 
 	i=0
 	for j in order:
+		t=0
 		for k in range(dimension):
 			n2[k][j]=n1[k][i]
+			t=t+1
 		i=i+1
 
 	return n2
@@ -49,8 +58,6 @@ def commitMatrix(m):
 			n[i][j]=hashlib.sha224(hashphase+str(i)+str(j)+str(m[i][j])).hexdigest()[0]
 	return n
 
-def reduce(m, order):
-	
 
 
 
@@ -62,14 +69,16 @@ print 'original:'
 for a in m:
 	print a
 
-#order=[2,1,0,3,5,4,7,9,6,8]
-order=[2,1,0,3]
+order=[2,1,0,3,5,4,7,9,6,8]
 
-n=permute(m, order)
+
+n=permute(m, order, len(order))
 
 print 'Permuted matrix:'
 for a in n:
 	print a
+
+print 'Commitment'
 
 n=commitMatrix(m)
 for a in n:
