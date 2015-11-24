@@ -133,7 +133,8 @@ def threadServer(socket):
 	passphase='This is Victor'+chr(13)+chr(10)
 	global g1
 	global g2
-	
+	rd=0
+
 	while True:
 		if default:
 			data=socket.recv(SIZE)
@@ -150,7 +151,7 @@ def threadServer(socket):
 			
 		if firstTime:
 			socket.sendall('Chanllenge me\n')
-			print 'Bingo'
+			print 'Client identity confirmed'
 		else:
 			order=permutation(len(g2))
 			q=permute(g2, order, len(g2))
@@ -163,19 +164,19 @@ def threadServer(socket):
 				data=socket.recv(SIZE)
 
 			if str(data) == 'alpha'+chr(13)+chr(10):
-				print('Providing alpha and the adj matrix Q\n')
+				print "Round", rd, "case A"
 				socket.sendall(listToStr(order))
 				data=socket.recv(SIZE)
 				socket.sendall(matToStr(q))
 			elif str(data) == 'pi'+chr(13)+chr(10):
-				print 'Providing pi and portion of the adj matrix of Q'
+				print "Round", rd, "case B"
 				socket.sendall(listToStr(orderPi))
 				data=socket.recv(SIZE)
 				socket.sendall(matToStr(q_prime))
 
 			else:
 				socket.sendall('You know you should have trusted in me\n')
-				print 'Now he is convinced\n'
+				print 'End of protocol\n'
 				break
 		firstTime=False
 

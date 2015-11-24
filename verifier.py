@@ -146,7 +146,7 @@ for rd in range(0,100):
 			print 'Reject'
 			break
 		else:
-			print "Round", rd, "passed"
+			print "Round", rd, "case B: passed"
 			prob=prob*0.5
 	else:
 		s.sendall('alpha'+chr(13)+chr(10))
@@ -162,10 +162,10 @@ for rd in range(0,100):
 			print 'Reject'
 			break
 		else:
-			print "Round", rd, "passed"
+			print "Round", rd, "case A: passed"
 			prob=prob*0.5
 
 
 print "Probility of Peggy knows the subgraph: ", 1-prob
-
+s.send('...')
 s.close()
