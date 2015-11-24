@@ -49,6 +49,13 @@ def commitMatrix(m):
 			n[i][j]=hashlib.sha224(hashphase+str(i)+str(j)+str(m[i][j])).hexdigest()[0]
 	return n
 
+def reduce(m, order):
+	
+
+
+
+
+
 m=openMatrix(sys.argv[1])
 
 print 'original:'

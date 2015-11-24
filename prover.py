@@ -101,16 +101,19 @@ def threadServer(socket):
 			g2=openMatrix("G2")
 			order=permutation(len(g2))
 			q=permute(g2, order)
-
-
+			orderPi=generatePi(order)
+			q_prime=
 
 
 			if str(data) == 'alpha\n':
 				socket.sendall('Providing alpha and the adj matrix Q\n')
-				socket.sendall(order)
+				socket.sendall(str(order))
+				socket.sendall(str(q))
 			elif str(data) == 'pi\n':
 				print 'Providing pi and portion of the adj matrix of Q'
-				socket.sendall(str(permutation(10)))
+				socket.sendall(str(orderPi))
+				socket.sendall(str(q_prime))
+
 			else:
 				socket.sendall('You know you should have trusted in me\n')
 				print 'Now he is convinced\n'
